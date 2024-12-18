@@ -27,7 +27,7 @@ async function empSearch(page,empName) {
     await page.waitForTimeout(2000);
     await input.focus();
     await input.click();
-    await input.type(searchText, { delay: 500 });
+    await input.type(searchText, { delay: 200 });
     await page.screenshot({ path: 'searchEmp.png', fullPage: true });
     const element = page.locator('.search-autofill-list > div:nth-child(2)');
     // //Click the first matching element
@@ -42,7 +42,7 @@ async function productSearch(page,productname) {
     await input.waitFor({ state: 'visible' });
     await input.focus();
     await input.click();
-    await input.type(searchText, { delay: 500 });
+    await input.type(searchText, { delay: 200 });
 }
 
 async function searchArea(page,area) {
@@ -57,13 +57,15 @@ async function searchArea(page,area) {
 
 async function addProduct(page) {
     await page.waitForTimeout(1000);
-    await page.getByRole('link', { name: 'งานติดตั้ง บริการล้างเครื่องซักผ้าฝาบนอัตโนมัติ <= 15 kg ฿890 / เครื่อง' }).click();
-    await page.locator('#cart-button-content').getByRole('img').click();
-    await page.getByRole('link', { name: '1', exact: true }).click();
-}
-async function customerAddress(page,province) {
+    await page.getByRole('link', { name: 'งานติดตั้ง บริการล้างเครื่องซักผ้าฝาหน้าอัตโนมัติ <= 15 kg ฿2,500 / เครื่อง' }).click();
+    await page.waitForTimeout(1000)
+    await page.getByRole('button', { name: 'จองบริการ' }).click();
+    await page.waitForTimeout(1000)
     await page.getByRole('button', { name: 'เลือกวันรับบริการ' }).click();
-    await page.waitForTimeout(1000);
+    //await page.pause();
+}
+
+async function customerAddress(page,province) {
     await page.getByPlaceholder('กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ').click();
     await page.getByPlaceholder('กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ').fill(province);
     await page.getByRole('option', { name: 'อ่างทอง > สามโก้ > ราษฎรพัฒนา >' }).click();

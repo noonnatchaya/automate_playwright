@@ -1,7 +1,4 @@
-// keywords.js
-
 const { expect } = require('@playwright/test');
-
 // Custom keyword to log in
 async function login(page,username, password) {
     // Go to login page
@@ -64,17 +61,6 @@ async function addProduct(page) {
     await page.getByRole('button', { name: 'เลือกวันรับบริการ' }).click();
     //await page.pause();
 }
-
-async function customerAddress(page,province) {
-    await page.getByPlaceholder('กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ').click();
-    await page.getByPlaceholder('กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ').fill(province);
-    await page.getByRole('option', { name: 'อ่างทอง > สามโก้ > ราษฎรพัฒนา >' }).click();
-    await page.locator('[id="__BVID__194"]').selectOption('2');
-}
-
-async function start_date(date,time) {
-    await page.locator('[id="__BVID__194"]').selectOption(time);
-    await page.getByText(date, { exact: true }).click();
     
 }
 
@@ -89,15 +75,12 @@ async function customer_detail(name,lastname,mobile,email) {
     await page.getByPlaceholder('xxx@gmail.com, etc.').fill(email);
     
 }
-
-
 module.exports = {
     login,
     productSearch,
     empSearch,
     searchArea,
     addProduct,
-    customerAddress,
     start_date,
     customer_detail
 };

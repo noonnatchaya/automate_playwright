@@ -1,0 +1,7 @@
+{
+    "loginPage": {
+    "usernameField": "input[id='feedback-username']",
+    "passwordField": "input[id='feedback-password']",
+    "loginButton": "#login > div"
+    }
+}

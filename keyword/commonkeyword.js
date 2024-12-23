@@ -121,6 +121,27 @@ async function confirm_order_2(page) {
 }
 
 
+async function pay_by_credit_card_2c2p(page) {
+    await expect(page.getByRole('img', { name: 'Credit Card Payment' })).toBeVisible();
+    await page.getByPlaceholder('-0000-0000-0000').click();
+    await page.getByPlaceholder('-0000-0000-0000').fill('4111-1111-1111-1111');
+    await page.getByPlaceholder('ดด/ปป').click();
+    await page.getByPlaceholder('ดด/ปป').fill('12/24');
+    await page.getByPlaceholder('. .').click();
+    await page.getByPlaceholder('. .').fill('123');
+    await page.getByLabel('ชื่อผู้ถือบัตร (ภาษาอังกฤษ)').click();
+    await page.getByLabel('ชื่อผู้ถือบัตร (ภาษาอังกฤษ)').fill('QATest');
+    await page.getByRole('button', { name: 'ชำระเงินต่อ' }).click();
+    // Enter OTP
+    await expect(page.getByRole('heading', { name: 'Secure Cardholder Verification' })).toBeVisible();
+    await page.getByRole('textbox').click();
+    await page.getByRole('textbox').fill('123456');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    await page.getByRole('button', { name: 'Return to Merchant' }).click();
+    await expect(page.getByText('การทำธุรกรรมที่ประสบความสำเร็จ')).toBeVisible();
+}
+
+
 
 module.exports = {
     login,
@@ -131,5 +152,6 @@ module.exports = {
     cust_detail,
     customer_address,
     address_detail,
-    confirm_order_2
+    confirm_order_2,
+    pay_by_credit_card_2c2p
 };

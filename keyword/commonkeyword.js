@@ -1,11 +1,12 @@
 const { expect } = require('@playwright/test');
+const locators = require('../locator/login')
 // Custom keyword to log in
 async function login(page,username, password) {
     // Go to login page
     await page.goto('https://sit-business.q-chang.io/login');
     // Fill login form
-    await page.fill('input[id="feedback-username"]', username);
-    await page.fill('input[id="feedback-password"]', password);
+    await page.fill(locators.loginPage.usernameField, username);
+    await page.fill(locators.loginPage.passwordField, password);
     // Submit form
     await page.click('#login > div');
     await page.screenshot({ path: 'login.png', fullPage: true });
@@ -57,30 +58,78 @@ async function addProduct(page) {
     await page.getByRole('link', { name: 'งานติดตั้ง บริการล้างเครื่องซักผ้าฝาหน้าอัตโนมัติ <= 15 kg ฿2,500 / เครื่อง' }).click();
     await page.waitForTimeout(1000)
     await page.getByRole('button', { name: 'จองบริการ' }).click();
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(5000)
     await page.getByRole('button', { name: 'เลือกวันรับบริการ' }).click();
+    await page.waitForTimeout(1000)
     //await page.pause();
 }
-    
+async function customer_address(page,province) {
+    const searchText = province;
+    await page.locator('input[placeholder="กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ"]');
+    await page.fill('input[placeholder="กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ"]',searchText,{ delay: 200 });
+    await page.locator('.vs__dropdown-option--highlight').click();
+    await page.waitForTimeout(10000)
+    await page.getByText('26', { exact: true }).click();
 }
 
-async function customer_detail(name,lastname,mobile,email) {
-    await page.getByPlaceholder('ชื่อ').click();
-    await page.getByPlaceholder('ชื่อ').fill(name);
+async function cust_detail(page,name,lastname,mobile,email) {
+    const customer_name=name;
+    const customer_last=lastname;
+    const customer_phone=mobile;
+    const customer_email=email;
+    // Locate the element using XPath or a CSS selector
+    const input = page.locator('//*[@id="firstname"]');
+    // Scroll the element into view if it's not already visible
+    await input.scrollIntoViewIfNeeded();
+    // Now you can interact with the element (e.g., click, fill)
+    await input.click();
+    await input.fill(customer_name, { delay: 200 });
     await page.getByPlaceholder('นามสกุล').click();
-    await page.getByPlaceholder('นามสกุล').fill(lastname);
+    await page.getByPlaceholder('นามสกุล').fill(customer_last,{delay: 200});
     await page.locator('#mobile').click();
-    await page.locator('#mobile').fill(mobile);
+    await page.locator('#mobile').fill(customer_phone,{delay: 200});
     await page.getByPlaceholder('xxx@gmail.com, etc.').click();
-    await page.getByPlaceholder('xxx@gmail.com, etc.').fill(email);
-    
+    await page.getByPlaceholder('xxx@gmail.com, etc.').fill(customer_email,{delay: 200});
+    await page.locator('#lead_from').getByRole('combobox').locator('div').filter({ hasText: 'ลูกค้าเห็นบริการคิวช่างผ่านช่องทางใด' }).click();
+    await page.getByRole('option', { name: 'ลูกค้า Walk in' }).locator('span').first().click();
+    await page.screenshot({ path: 'customerDetail.png', fullPage: true });    
 }
+
+async function address_detail(page) {
+    await page.waitForTimeout(5000)
+    await page.getByPlaceholder('บ้านเลขที่, ถนน, ซอย, ฯลฯ').click();
+    await page.getByPlaceholder('บ้านเลขที่, ถนน, ซอย, ฯลฯ').fill('123');
+    await page.getByPlaceholder('เช่น ประตูสีฟ้า, ตรงข้ามร้านสะดวกซื้อ, ฯลฯ').click();
+    await page.getByPlaceholder('เช่น ประตูสีฟ้า, ตรงข้ามร้านสะดวกซื้อ, ฯลฯ').fill('test');
+    await page.screenshot({ path: 'addressDetail.png', fullPage: true }); 
+}
+
+async function confirm_order_2(page) {
+    await page.getByRole('button', { name: 'ยืนยันการจองบริการ' }).click();
+    await page.getByRole('button', { name: 'คัดลอก' }).click();
+    const context = page.context(); // Get the browser context from the page
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: page.url() });
+
+    const copiedText = await page.evaluate(async () => {
+    return await navigator.clipboard.readText();
+    });
+    console.log('Copied Text:', copiedText);
+//Close the context
+    console.log('Copied URL:', copiedText);
+    await page.goto(copiedText);
+    await page.screenshot({ path: 'customerTracking.png', fullPage: true })
+}
+
+
+
 module.exports = {
     login,
     productSearch,
     empSearch,
     searchArea,
     addProduct,
-    start_date,
-    customer_detail
+    cust_detail,
+    customer_address,
+    address_detail,
+    confirm_order_2
 };

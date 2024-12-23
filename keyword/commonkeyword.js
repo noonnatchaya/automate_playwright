@@ -69,7 +69,7 @@ async function customer_address(page, province) {
     await page.fill('input[placeholder="กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ"]', searchText, { delay: 200 });
     await page.locator('.vs__dropdown-option--highlight').click();
     await page.waitForTimeout(10000)
-    //await page.getByText('30', { exact: true }).click();
+    await page.getByText('30', { exact: true }).click();
 }
 
 async function start_date(page,targetDate) {

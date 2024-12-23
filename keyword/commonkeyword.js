@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const locators = require('../locator/login')
+const locators = require('../repository/commonRepository.json')
 // Custom keyword to log in
 async function login(page,username, password) {
     // Go to login page

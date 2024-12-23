@@ -69,14 +69,29 @@ async function customer_address(page, province) {
     await page.fill('input[placeholder="กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ"]', searchText, { delay: 200 });
     await page.locator('.vs__dropdown-option--highlight').click();
     await page.waitForTimeout(10000)
-    await page.getByText('26', { exact: true }).click();
+    //await page.getByText('30', { exact: true }).click();
 }
 
-async function cust_detail(page, name, lastname, mobile, email) {
-    const customer_name = name;
-    const customer_last = lastname;
-    const customer_phone = mobile;
-    const customer_email = email;
+async function start_date(page,targetDate) {
+    const targetDate = '30'; // Replace with your desired date
+    const dateXPath = `//span[contains(@class, 'cell') and not(contains(@class, 'disabled')) and text()='${targetDate}']`;
+  // Check if the target date is available and clickable
+    const isDateAvailable = await page.locator(dateXPath).count();
+
+    if (isDateAvailable > 0) {
+    // Click on the target date
+    await page.locator(dateXPath).click();
+    console.log(`Successfully selected the date: ${targetDate}`);
+    } else {
+    console.error(`The date ${targetDate} is not available or is disabled.`);
+    }
+    }
+
+async function cust_detail(page,name,lastname,mobile,email) {
+    const customer_name=name;
+    const customer_last=lastname;
+    const customer_phone=mobile;
+    const customer_email=email;
     // Locate the element using XPath or a CSS selector
     const input = page.locator('//*[@id="firstname"]');
     // Scroll the element into view if it's not already visible
@@ -118,6 +133,14 @@ async function confirm_order_2(page) {
     console.log('Copied URL:', copiedText);
     await page.goto(copiedText);
     await page.screenshot({ path: 'customerTracking.png', fullPage: true })
+    await page.pause()
+}
+
+async function payment_confirm(page,) {
+    //const payment_card = card;
+    //const otp_number = otp;
+    await page.locator('.custom-control').click();
+    await page.getByRole('button', { name: 'ชำระค่าบริการ' }).click();
 }
 
 // Partner Q-Chang V1
@@ -198,6 +221,8 @@ module.exports = {
     customer_address,
     address_detail,
     confirm_order_2,
+    payment_confirm,
+    start_date,
     open_partner_page,
     partner_select_product,
     partner_cust_address,

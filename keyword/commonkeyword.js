@@ -72,26 +72,26 @@ async function customer_address(page, province) {
     //await page.getByText('30', { exact: true }).click();
 }
 
-async function start_date(page,targetDate) {
+async function start_date(page) {
     const targetDate = '30'; // Replace with your desired date
     const dateXPath = `//span[contains(@class, 'cell') and not(contains(@class, 'disabled')) and text()='${targetDate}']`;
-  // Check if the target date is available and clickable
+    // Check if the target date is available and clickable
     const isDateAvailable = await page.locator(dateXPath).count();
 
     if (isDateAvailable > 0) {
-    // Click on the target date
-    await page.locator(dateXPath).click();
-    console.log(`Successfully selected the date: ${targetDate}`);
+        // Click on the target date
+        await page.locator(dateXPath).click();
+        console.log(`Successfully selected the date: ${targetDate}`);
     } else {
-    console.error(`The date ${targetDate} is not available or is disabled.`);
+        console.error(`The date ${targetDate} is not available or is disabled.`);
     }
-    }
+}
 
-async function cust_detail(page,name,lastname,mobile,email) {
-    const customer_name=name;
-    const customer_last=lastname;
-    const customer_phone=mobile;
-    const customer_email=email;
+async function cust_detail(page, name, lastname, mobile, email) {
+    const customer_name = name;
+    const customer_last = lastname;
+    const customer_phone = mobile;
+    const customer_email = email;
     // Locate the element using XPath or a CSS selector
     const input = page.locator('//*[@id="firstname"]');
     // Scroll the element into view if it's not already visible
@@ -145,18 +145,18 @@ async function payment_confirm(page,) {
 
 // Partner Q-Chang V1
 
-async function open_partner_page(page) {
+async function OpenPartnerPage(page) {
     await page.goto('https://sit-partner.q-chang.io/');
 }
 
-async function partner_select_product(page) {
-await page.getByRole('link', { name: 'เลือกบริการ' }).click();
-  await page.getByRole('heading', { name: 'รางน้ำฝน' }).click();
-  await page.getByRole('link', { name: 'รางน้ำฝน SCG พร้อมติดตั้ง' }).click();
-  await page.getByRole('button', { name: 'จองสำรวจ' }).click();
+async function PartnerSelectProduct(page) {
+    await page.getByRole('link', { name: 'เลือกบริการ' }).click();
+    await page.getByRole('heading', { name: 'รางน้ำฝน' }).click();
+    await page.getByRole('link', { name: 'รางน้ำฝน SCG พร้อมติดตั้ง' }).click();
+    await page.getByRole('button', { name: 'จองสำรวจ' }).click();
 }
 
-async function partner_cust_address(page, sub_district, add_no, landmark) {
+async function PartnerCustAddress(page, sub_district, add_no, landmark) {
     const customer_sub_district = sub_district;
     const customer_no = add_no;
     const customer_landmark = landmark;
@@ -168,7 +168,7 @@ async function partner_cust_address(page, sub_district, add_no, landmark) {
     await page.getByPlaceholder('สถานที่ สิ่งก่อสร้าง อื่นๆ').fill(landmark);
 }
 
-async function partner_cust_detail(page, firstname, lastname, phone, email) {
+async function PartnerCustDetail(page, firstname, lastname, phone, email) {
     const customer_name = firstname;
     const customer_last = lastname;
     const customer_phone = phone;
@@ -179,14 +179,24 @@ async function partner_cust_detail(page, firstname, lastname, phone, email) {
     await page.locator('#email').fill(email);
 }
 
-async function partner_confirm_order(page) {
+async function ConfirmBasedOnConditions(page, type_of_work, sale_model) {
     await page.getByText('ยอมรับข้อกำหนดและเงื่อนไขและเข้าใจนโยบายความเป็นส่วนตัว(ดูรายละเอียด คลิก)').click();
-    await page.getByRole('button', { name: 'ชำระค่าสำรวจ' }).click();
+    if (type_of_work === 'survey' && sale_model === 'marketplace') {
+        await page.getByRole('button', { name: 'ชำระค่าสำรวจ' }).click(); 
+    } else if (type_of_work === 'installation' && sale_model === 'marketplace') {
+        await page.getByRole('button', { name: 'ชำระค่าติดตั้ง' }).click(); 
+    } else if (type_of_work === 'survey' && sale_model === 'retail') {
+        await page.getByRole('button', { name: 'ยืนยันการสำรวจ' }).click(); 
+    } else if (type_of_work === 'installation' && sale_model === 'retail') {
+        await page.getByRole('button', { name: 'ยืนยันการติดตั้ง' }).click(); 
+    } else {
+        console.log('No matching condition found');
+    }
     await page.getByRole('button', { name: 'ตกลง' }).click();
 }
 
 
-async function pay_by_credit_card_2c2p(page, card_no, card_expire, card_name, card_ccv, card_otp) {
+async function PaidByCreditCard(page, card_no, card_expire, card_name, card_ccv, card_otp) {
     const credit_card_no = card_no;
     const credit_card_expire = card_expire;
     const credit_card_name = card_name;
@@ -211,6 +221,14 @@ async function pay_by_credit_card_2c2p(page, card_no, card_expire, card_name, ca
     await expect(page.getByText('การทำธุรกรรมที่ประสบความสำเร็จ')).toBeVisible();
 }
 
+async function PartnerApplyCoupon(page, code) {
+    const coupon_code = code;
+    await page.locator('#promocode').click();
+    await page.locator('#promocode').fill(code);
+    await page.getByRole('button', { name: 'ใช้ส่วนลด' }).click();
+    await expect(page.getByText('Retail Automate Code V1')).toBeVisible();
+}
+
 module.exports = {
     login,
     productSearch,
@@ -223,10 +241,11 @@ module.exports = {
     confirm_order_2,
     payment_confirm,
     start_date,
-    open_partner_page,
-    partner_select_product,
-    partner_cust_address,
-    partner_cust_detail,
-    partner_confirm_order,
-    pay_by_credit_card_2c2p
+    OpenPartnerPage,
+    ConfirmBasedOnConditions,
+    PartnerSelectProduct,
+    PartnerCustAddress,
+    PartnerCustDetail,
+    PaidByCreditCard,
+    PartnerApplyCoupon,
 };

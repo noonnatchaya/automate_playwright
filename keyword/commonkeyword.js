@@ -61,7 +61,6 @@ async function addProduct(page) {
     await page.waitForTimeout(5000)
     await page.getByRole('button', { name: 'เลือกวันรับบริการ' }).click();
     await page.waitForTimeout(1000)
-    //await page.pause();
 }
 async function customer_address(page, province) {
     const searchText = province;
@@ -69,34 +68,80 @@ async function customer_address(page, province) {
     await page.fill('input[placeholder="กรุณาระบุ เขต/อำเภอ, แขวง/ตำบล, จังหวัด, ฯลฯ"]', searchText, { delay: 200 });
     await page.locator('.vs__dropdown-option--highlight').click();
     await page.waitForTimeout(10000)
-    //await page.getByText('30', { exact: true }).click();
+
 }
 
-async function start_date(page) {
-    const targetDate = '30'; // Replace with your desired date
-    const dateXPath = `//span[contains(@class, 'cell') and not(contains(@class, 'disabled')) and text()='${targetDate}']`;
-    // Check if the target date is available and clickable
-    const isDateAvailable = await page.locator(dateXPath).count();
+async function start_date(page,targetDate) {
+    const dateXPath = `//span[contains(@class, "cell day") and text()="${targetDate}"]`;
 
-    if (isDateAvailable > 0) {
-        // Click on the target date
-        await page.locator(dateXPath).click();
-        console.log(`Successfully selected the date: ${targetDate}`);
+    // Check if the date is enabled
+    const dateElement = page.locator(dateXPath);
+    if (await dateElement.count() > 0) {
+    const isDisabled = await dateElement.getAttribute('class').then(cls => cls.includes('disabled'));
+
+    if (!isDisabled) {
+        console.log(`Clicking on the target date: ${targetDate}`);
+        await dateElement.click();
     } else {
-        console.error(`The date ${targetDate} is not available or is disabled.`);
+        console.log(`The target date (${targetDate}) is disabled. Searching for the next available date...`);
+        await selectNextEnabledDate(page, targetDate);
     }
-}
+    } else {
+    console.error(`Date element not found for target date: ${targetDate}`);
+    }
+    };
 
-async function cust_detail(page, name, lastname, mobile, email) {
-    const customer_name = name;
-    const customer_last = lastname;
-    const customer_phone = mobile;
-    const customer_email = email;
-    // Locate the element using XPath or a CSS selector
+async function selectNextEnabledDate(page, currentTargetDate,targetDate) {
+    const allDatesXPath = `//span[contains(@class, "cell day")]`;
+    const allDates = page.locator(allDatesXPath);
+
+    const count = await allDates.count();
+    let targetFound = false;
+
+    for (let i = 0; i < count; i++) {
+    const dateElement = allDates.nth(i);
+    const className = await dateElement.getAttribute('class');
+
+      // Check if the date is enabled
+    if (!className.includes('disabled')) {
+        const nextDate = await dateElement.textContent();
+
+        // Click the next enabled date only if it is after the current target date
+        if (parseInt(nextDate, 10) > parseInt(currentTargetDate, 10)) {
+        console.log(`Clicking on the next available date: ${nextDate}`);
+        await dateElement.click();
+        targetFound = true;
+        break;
+        }
+    }
+    }
+
+    // If no enabled date is found, move to the next month
+    if (!targetFound) {
+    console.log('No enabled date found in the current month. Moving to the next month...');
+    const nextMonthButtonXPath = `.vdp-datepicker > div:nth-of-type(2) .next`; 
+    const nextMonthButton = page.locator(nextMonthButtonXPath);
+
+    if (await nextMonthButton.count() > 0) {
+        await nextMonthButton.click();
+        console.log('Clicked on the "Next Month" button.');
+
+        // Retry selecting the next enabled date in the new month
+        await selectNextEnabledDate(page, 0); // Pass 0 to start from the first day of the next month
+    } else {
+        console.error('Next Month button not found. Unable to proceed further.');
+    }
+    }
+    await start_date(page, targetDate);
+    };
+
+async function cust_detail(page,name,lastname,mobile,email) {
+    const customer_name=name;
+    const customer_last=lastname;
+    const customer_phone=mobile;
+    const customer_email=email;
     const input = page.locator('//*[@id="firstname"]');
-    // Scroll the element into view if it's not already visible
     await input.scrollIntoViewIfNeeded();
-    // Now you can interact with the element (e.g., click, fill)
     await input.click();
     await input.fill(customer_name, { delay: 200 });
     await page.getByPlaceholder('นามสกุล').click();
@@ -122,21 +167,19 @@ async function address_detail(page) {
 async function confirm_order_2(page) {
     await page.getByRole('button', { name: 'ยืนยันการจองบริการ' }).click();
     await page.getByRole('button', { name: 'คัดลอก' }).click();
-    const context = page.context(); // Get the browser context from the page
+    const context = page.context(); 
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: page.url() });
 
     const copiedText = await page.evaluate(async () => {
         return await navigator.clipboard.readText();
     });
     console.log('Copied Text:', copiedText);
-    //Close the context
     console.log('Copied URL:', copiedText);
     await page.goto(copiedText);
     await page.screenshot({ path: 'customerTracking.png', fullPage: true })
-    await page.pause()
 }
 
-async function payment_confirm(page,) {
+async function payment_confirm(page) {
     //const payment_card = card;
     //const otp_number = otp;
     await page.locator('.custom-control').click();
@@ -148,6 +191,7 @@ async function payment_confirm(page,) {
 async function OpenPartnerPage(page) {
     await page.goto('https://sit-partner.q-chang.io/');
 }
+
 
 async function PartnerSelectProduct(page) {
     await page.getByRole('link', { name: 'เลือกบริการ' }).click();
@@ -248,4 +292,5 @@ module.exports = {
     PartnerCustDetail,
     PaidByCreditCard,
     PartnerApplyCoupon,
+    selectNextEnabledDate,
 };

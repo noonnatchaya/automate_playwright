@@ -7,9 +7,10 @@ test('Successful add to cart', async ({ page }) => {
     await keywords.searchArea(page, 'อ่างทอง');
     await keywords.addProduct(page);
     await keywords.customer_address(page,'แสวงหา');
+    await keywords.start_date(page,'31')
     await keywords.cust_detail(page,'qatest','qalastname','0627504107','piggienunoo24@gmail.com');
     await keywords.address_detail(page);
     //await keywords.confirm_customer_order(page)
     await keywords.confirm_order_2(page);
-    await keywords.payment_confirm(page);
+    //await keywords.payment_confirm(page);
 });

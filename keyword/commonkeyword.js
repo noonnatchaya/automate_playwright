@@ -182,8 +182,20 @@ async function confirm_order_2(page) {
 async function payment_confirm(page) {
     //const payment_card = card;
     //const otp_number = otp;
-    await page.locator('.custom-control').click();
+    await page.locator('.custom-control-label').click();
     await page.getByRole('button', { name: 'ชำระค่าบริการ' }).click();
+    await page.locator('#tel-cardNumber').click();
+    await page.fill('#tel-cardNumber','4111111111111111');
+    await page.locator('#expyear').click();
+    await page.type('#expyear','0728');
+    await page.locator('#tel-cvv').click();
+    await page.fill('#tel-cvv','123');
+    await page.locator('.btn-primary').click();
+    await page.waitForTimeout(2000);
+    await page.fill('//*[@id="parentFormElement"]/form/div/main/div[1]/div[1]/input','123456');
+    await page.locator('//button[contains(.,"Submit")]').click();
+    await page.waitForTimeout(6000);
+    
 }
 
 // Partner Q-Chang V1

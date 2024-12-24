@@ -12,5 +12,5 @@ test('Successful add to cart', async ({ page }) => {
     await keywords.address_detail(page);
     //await keywords.confirm_customer_order(page)
     await keywords.confirm_order_2(page);
-    //await keywords.payment_confirm(page);
+    await keywords.payment_confirm(page);
 });

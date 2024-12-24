@@ -219,7 +219,6 @@ async function PartnerCustAddress(page, sub_district, add_no, landmark) {
     await page.locator('#sub-district').click();
     await page.locator('#sub-district').fill(sub_district);
     await page.locator('ul').filter({ hasText: 'สีบัวทอง' }).locator('div').click()
-    // await page.getByText('สามโก้ » สามโก้ » อ่างทอง »').click();
     await page.getByPlaceholder('ที่อยู่ (บ้านเลขที่ ซอย ถนน)').fill(add_no);
     await page.getByPlaceholder('สถานที่ สิ่งก่อสร้าง อื่นๆ').fill(landmark);
 }
@@ -258,6 +257,7 @@ async function PaidByCreditCard(page, card_no, card_expire, card_name, card_ccv,
     const credit_card_name = card_name;
     const credit_card_ccv = card_ccv;
     const credit_card_otp = card_otp;
+    await page.waitForTimeout(3000);
     await expect(page.getByText('บัตร', { exact: true })).toBeVisible({});
     await page.getByPlaceholder('-0000-0000-0000').click();
     await page.getByPlaceholder('-0000-0000-0000').fill(card_no);
@@ -275,6 +275,7 @@ async function PaidByCreditCard(page, card_no, card_expire, card_name, card_ccv,
     await page.getByRole('button', { name: 'Submit' }).click();
     await page.getByRole('button', { name: 'Return to Merchant' }).click();
     await expect(page.getByText('การทำธุรกรรมที่ประสบความสำเร็จ')).toBeVisible();
+    await page.getByRole('button', { name: 'กลับไปยังร้านค้า' }).click();
 }
 
 async function PartnerApplyCoupon(page, code) {
@@ -283,6 +284,10 @@ async function PartnerApplyCoupon(page, code) {
     await page.locator('#promocode').fill(code);
     await page.getByRole('button', { name: 'ใช้ส่วนลด' }).click();
     await expect(page.getByText('Retail Automate Code V1')).toBeVisible();
+}
+
+async function DisplaySuccessPage(page) {
+    await expect(page.getByRole('heading', { name: 'ชำระเงินเรียบร้อยแล้ว' })).toBeVisible();
 }
 
 module.exports = {
@@ -305,4 +310,5 @@ module.exports = {
     PaidByCreditCard,
     PartnerApplyCoupon,
     selectNextEnabledDate,
+    DisplaySuccessPage,
 };
